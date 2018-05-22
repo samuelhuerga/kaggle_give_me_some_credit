@@ -31,7 +31,7 @@ train_df %>%
   mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
   ggplot(aes(x = numberoftime30_59dayspastduenotworse, fill = seriousdlqin2yrs)) +
   geom_bar() +
-  facet_grid(seriousdlqin2yrs~.)+
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y")+
   xlim(c(0,15))
   
 # debtratio 
@@ -69,3 +69,47 @@ train_df %>%
   ggplot(aes(x = log(monthlyincome), color = seriousdlqin2yrs)) +
   geom_density() 
 
+
+# numberofopencreditlinesandloans 
+train_df %>% 
+  mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
+  ggplot(aes(x = numberofopencreditlinesandloans, fill = seriousdlqin2yrs)) +
+  geom_bar() +
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y")
+  
+# numberoftimes90dayslate 
+train_df %>% 
+  mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
+  ggplot(aes(x = numberoftimes90dayslate, fill = seriousdlqin2yrs)) +
+  geom_bar() +
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y") +
+  xlim(0,25)
+
+# numberrealestateloansorlines 
+train_df %>% 
+  mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
+  ggplot(aes(x = numberrealestateloansorlines, fill = seriousdlqin2yrs)) +
+  geom_bar() +
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y") +
+  xlim(0,20)
+  
+# numberoftime60_89dayspastduenotworse 
+train_df %>% 
+  mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
+  ggplot(aes(x = numberoftime60_89dayspastduenotworse, fill = seriousdlqin2yrs)) +
+  geom_bar() +
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y") +
+  xlim(0,10)
+  
+  
+  
+# numberofdependents 
+train_df %>% 
+  mutate(seriousdlqin2yrs = as.character(seriousdlqin2yrs)) %>% 
+  ggplot(aes(x = numberofdependents, fill = seriousdlqin2yrs)) +
+  geom_bar() +
+  facet_grid(seriousdlqin2yrs~.,scales = "free_y") +
+  xlim(0,10)
+  
+  
+  
