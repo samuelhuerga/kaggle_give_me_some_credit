@@ -1,16 +1,33 @@
 library(caret)
+library(modelr)
+library(randomForest)
 
 
 ctrl <- trainControl(method = "cv",
                     number = 5,
-                    sampling = "down")
+                    sampling = "down",
+                    summaryFunction = twoClassSummary,
+                    classProbs = T)
 
-fit_rf <- train(seriousdlqin2yrs ~ .,
-                data = train_df %>% select(-x1) %>% mutate(seriousdlqin2yrs = factor(seriousdlqin2yrs, levels = c(1,0),labels =c("Churn","No Churn"))),
+grid <- expand.grid(mtry = c(6,10,14))
+
+fit_rf <- train(serious_dlqin2yrs ~ .,
+                data = train_df %>% select(-x1) %>% mutate(serious_dlqin2yrs = factor(serious_dlqin2yrs, levels = c(1,0),labels =c("Delinquency","No Delinquency"))),
                 method = "rf",
                 importance = T,
                 na.action = na.omit,
-                trControl = ctrl)
+                tuneGrid = grid,
+                trControl = ctrl,
+                verbose = T)
 
-fit_rf
+predictions <- predict(fit_rf,test_df,type="prob")
+
+
+test_df %>% 
+  bind_cols(predictions) %>% 
+  select(x1,Churn) %>% 
+  rename(Id = x1,
+         Probability = Delinquency) %>% 
+  write_csv("rf_1.csv")
+
 
