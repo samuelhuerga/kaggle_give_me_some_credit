@@ -7,6 +7,7 @@ test_df <- read_csv("data/cs-test.csv")
 
 
 
+
 process_data <- function(data){
   data %>% 
     mutate(unknown_number_of_dependents = as.integer(is.na(number_of_dependents)),
@@ -169,6 +170,19 @@ process_data <- function(data){
            -number_of_time30_59days_past_due_not_worse,
            -number_of_time60_89days_past_due_not_worse,
            -age)
+}
+
+process_data <- function(data){
+  data %>% 
+    mutate_at(vars(number_of_time30_59days_past_due_not_worse,
+                   number_of_open_credit_lines_and_loans,
+                   number_of_times90days_late,
+                   number_real_estate_loans_or_lines,
+                   number_of_time60_89days_past_due_not_worse,
+                   number_of_dependents),
+              funs(dummy = as.numeric(. >=1))) %>% 
+    select(x1, serious_dlqin2yrs, ends_with("dummy"),revolving_utilization_of_unsecured_lines,debt_ratio,age,monthly_income) %>% 
+    mutate_if(is.numeric,funs(coalesce(as.numeric(.),0)))
 }
 
 train_df <- train_df %>% clean_names() %>% process_data()
