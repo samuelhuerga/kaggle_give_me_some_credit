@@ -6,10 +6,25 @@ test_df <- read_csv("data/cs-test.csv")
 
 
 
-
-
 process_data <- function(data){
   data %>% 
+    mutate_at(vars(number_of_time30_59days_past_due_not_worse,
+                   number_of_open_credit_lines_and_loans,
+                   number_of_times90days_late,
+                   number_real_estate_loans_or_lines,
+                   number_of_time60_89days_past_due_not_worse,
+                   number_of_dependents),
+              funs(dummy = as.numeric(. >=1))) %>% 
+    mutate(number_of_dependents_dummy = coalesce(number_of_dependents_dummy,0)) %>% 
+    mutate(number_times_late = as.integer(as.logical(
+      number_of_time30_59days_past_due_not_worse_dummy +
+        number_of_times90days_late_dummy +
+        number_of_time60_89days_past_due_not_worse_dummy
+    ))) %>% 
+    mutate(number_times_late =  as.integer(as.logical( 
+      number_of_time30_59days_past_due_not_worse_dummy +
+        number_of_times90days_late_dummy +
+        number_of_time60_89days_past_due_not_worse_dummy))) %>% 
     mutate(unknown_number_of_dependents = as.integer(is.na(number_of_dependents)),
            unknown_monthly_income = as.integer(is.na(monthly_income)),
            no_dependents = as.integer(number_of_dependents == 0)) %>% 
@@ -172,18 +187,21 @@ process_data <- function(data){
            -age)
 }
 
-process_data <- function(data){
-  data %>% 
-    mutate_at(vars(number_of_time30_59days_past_due_not_worse,
-                   number_of_open_credit_lines_and_loans,
-                   number_of_times90days_late,
-                   number_real_estate_loans_or_lines,
-                   number_of_time60_89days_past_due_not_worse,
-                   number_of_dependents),
-              funs(dummy = as.numeric(. >=1))) %>% 
-    select(x1, serious_dlqin2yrs, ends_with("dummy"),revolving_utilization_of_unsecured_lines,debt_ratio,age,monthly_income) %>% 
-    mutate_if(is.numeric,funs(coalesce(as.numeric(.),0)))
-}
+# process_data <- function(data){
+#   data %>% 
+#     mutate_at(vars(number_of_time30_59days_past_due_not_worse,
+#                    number_of_open_credit_lines_and_loans,
+#                    number_of_times90days_late,
+#                    number_real_estate_loans_or_lines,
+#                    number_of_time60_89days_past_due_not_worse,
+#                    number_of_dependents),
+#               funs(dummy = as.numeric(. >=1))) %>% 
+#     select(x1, serious_dlqin2yrs, ends_with("dummy"),revolving_utilization_of_unsecured_lines,debt_ratio,age,monthly_income) %>% 
+#     mutate_if(is.numeric,funs(coalesce(as.numeric(.),0)))
+# }
 
 train_df <- train_df %>% clean_names() %>% process_data()
 test_df <- test_df %>% clean_names() %>% process_data()
+
+# Check for missing values
+train_df %>% mutate_all(is.na) %>% summarise_all(sum) %>% gather() %>% arrange(-value)

@@ -2,8 +2,8 @@
 library(caret)
 library(modelr)
 library(randomForest)
-library(pROC)
-library(doParallel)
+# library(pROC)
+# library(doParallel)
 
 # 01 - Load data ---------------------------------
 #_________________________________________________
@@ -47,10 +47,10 @@ predictions <- predict(fit_rf,test_df,type="prob")
 
 test_df %>% 
   bind_cols(predictions) %>% 
-  select(x1,Churn) %>% 
+  select(x1,Delinquency) %>% 
   rename(Id = x1,
          Probability = Delinquency) %>% 
-  write_csv("rf_2.csv")
+  write_csv("rf_3.csv")
 
 
 
@@ -99,6 +99,15 @@ test_df %>%
   rename(Id = x1,
          Probability = Delinquency) %>% 
   mutate(Id = as.integer(Id)) %>% 
-  write_csv("xgb_1.csv")
+  write_csv("xgb_3.csv")
 
 
+# 04 - Ensemble RF and XGBOOST -----------------------
+#_________________________________________________
+
+c("rf_2.csv","xgb_1.csv") %>% 
+  map(read_csv) %>% 
+  reduce(bind_rows) %>% 
+  group_by(Id) %>% 
+  summarise(Probability = mean(Probability)) %>% 
+  write_csv("Ensemble.csv")
